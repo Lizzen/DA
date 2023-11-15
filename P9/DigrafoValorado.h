@@ -1,7 +1,7 @@
 /*
- * Implementación de grafos dirigidos valorados
+ * ImplementaciÃ³n de grafos dirigidos valorados
  * Copyright (c) 2020  Alberto Verdejo
- * Modificado por 2023 Ignacio Fábregas
+ * Modificado por 2023 Ignacio FÃ¡bregas
  */
 
 #ifndef DIGRAFOVALORADO_H_
@@ -12,12 +12,12 @@
 #include <stdexcept>
 #include <vector>
 
-    template <typename Valor>
+template <typename Valor>
 class AristaDirigida {
 public:
     AristaDirigida() : pimpl(nullptr) {}
 
-    AristaDirigida(long int v, long int w, Valor valor) : pimpl(std::make_shared<AristaDirigida_impl>(v, w, valor)) {}
+    AristaDirigida(int v, int w, Valor valor) : pimpl(std::make_shared<AristaDirigida_impl>(v, w, valor)) {}
 
     int desde() const { return pimpl->v; }
 
@@ -41,7 +41,7 @@ private:
     struct AristaDirigida_impl {
         int v, w;
         Valor valor;
-        AristaDirigida_impl(long int v, long int w, Valor valor) : v(v), w(w), valor(valor) {}
+        AristaDirigida_impl(int v, int w, Valor valor) : v(v), w(w), valor(valor) {}
     };
     std::shared_ptr<AristaDirigida_impl> pimpl;
 };
@@ -53,18 +53,18 @@ inline std::ostream& operator<<(std::ostream& o, AristaDirigida<Valor> const& ar
 }
 
 template <typename Valor>
-using AdysDirVal = std::vector<AristaDirigida<Valor>>;  // lista de adyacentes a  un vértice
+using AdysDirVal = std::vector<AristaDirigida<Valor>>;  // lista de adyacentes a  un vÃ©rtice
 
 template <typename Valor>
 class DigrafoValorado {
 public:
 
-    /** Crea un grafo dirigido y valorado con V vértices */
-    DigrafoValorado(long int v) : _V(v), _A(0), _ady(_V) {}
+    /** Crea un grafo dirigido y valorado con V vÃ©rtices */
+    DigrafoValorado(int v) : _V(v), _A(0), _ady(_V) {}
 
     /**
      * Crea un grafo dirigido y valorado a partir de los datos en el flujo de entrada (si puede).
-     * primer es el índice del primer vértice del grafo en el entrada.
+     * primer es el Ã­ndice del primer vÃ©rtice del grafo en el entrada.
      */
     DigrafoValorado(std::istream& flujo, int primer = 0) : _A(0) {
         flujo >> _V;
@@ -79,15 +79,15 @@ public:
         }
     }
 
-    /** Devuelve el número de vértices del grafo. */
-    long int V() const { return _V; }
+    /** Devuelve el nÃºmero de vÃ©rtices del grafo. */
+    int V() const { return _V; }
 
-    /** Devuelve el número de aristas del grafo. */
-    long int A() const { return _A; }
+    /** Devuelve el nÃºmero de aristas del grafo. */
+    int A() const { return _A; }
 
     /**
-     * Añade la arista dirigida v-w al grafo.
-     * @throws invalid_argument si algún vértice no existe
+     * AÃ±ade la arista dirigida v-w al grafo.
+     * @throws invalid_argument si algÃºn vÃ©rtice no existe
      */
     void ponArista(AristaDirigida<Valor> arista) {
         int v = arista.desde(), w = arista.hasta();
@@ -98,7 +98,7 @@ public:
     }
 
     /** Comprueba si hay arista de v a w. */
-    bool hayArista(long int v, long int w) const {
+    bool hayArista(int v, int w) const {
         for (auto a : _ady[v])
             if (a.hasta() == w) return true;
         return false;
@@ -108,7 +108,7 @@ public:
      * Devuelve la lista de adyacencia de v.
      * @throws invalid_argument si v no existe
      */
-    AdysDirVal<Valor> const& ady(long int v) const {
+    AdysDirVal<Valor> const& ady(int v) const {
         if (v < 0 || v >= _V)
             throw std::invalid_argument("Vertice inexistente");
         return _ady[v];
@@ -127,7 +127,7 @@ public:
 
     /** Muestra el grafo en el stream de salida o */
     void print(std::ostream& o = std::cout) const {
-        o << _V << " vÃ©rtices, " << _A << " aristas\n";
+        o << _V << " vÃƒÂ©rtices, " << _A << " aristas\n";
         for (auto v = 0; v < _V; ++v) {
             o << v << ": ";
             for (auto a : _ady[v]) {
@@ -138,13 +138,13 @@ public:
     }
 
 private:
-    long int _V;   //número de vértices
-    long int _A;   //número de aristas
+    int _V;   //nÃºmero de vÃ©rtices
+    int _A;   //nÃºmero de aristas
     std::vector<AdysDirVal<Valor>> _ady;   // vector de listas de adyacentes
 
 };
 
-/** Para mostrar grafos por la salida estándar. */
+/** Para mostrar grafos por la salida estÃ¡ndar. */
 template <typename Valor>
 inline std::ostream& operator<<(std::ostream& o, const DigrafoValorado<Valor>& g) {
     g.print(o);

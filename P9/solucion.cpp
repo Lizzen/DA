@@ -1,4 +1,4 @@
-
+﻿
 /*@ <answer>
  *
  * Nombre y Apellidos: DA27 David Ferreras Díaz
@@ -40,7 +40,7 @@ using namespace std;
 template <typename Valor>
 class Dijkstra {
 public:
-    Dijkstra(DigrafoValorado<Valor> const& g, long int orig) : origen(orig),
+    Dijkstra(DigrafoValorado<Valor> const& g, int orig) : origen(orig),
         dist(g.V(), INF), ulti(g.V()), pq(g.V()) {
         dist[origen] = 0;
         pq.push(origen, 0);
@@ -55,7 +55,7 @@ public:
 
 private:
     const Valor INF = std::numeric_limits<Valor>::max();
-    long int origen;
+    int origen;
     std::vector<Valor> dist;
     std::vector<AristaDirigida<Valor>> ulti;
     IndexPQ<Valor> pq;
@@ -69,14 +69,15 @@ private:
 };
 
 bool resuelveCaso() {
-    long int n, m;
+    int n, m;
     // leer los datos de la entrada
     cin >> n >> m;
     if (!std::cin)
         return false;
 
-    DigrafoValorado<long int> dv(n);
-    long int v, a, valor;
+    DigrafoValorado<long long int> dv(n);
+    int v, a;
+    long long int valor;
     for (int i = 0; i < m; ++i) {
         cin >> v >> a >> valor;
         dv.ponArista({ v - 1, a - 1, valor });
@@ -84,15 +85,15 @@ bool resuelveCaso() {
     }
 
     // resolver el caso posiblemente llamando a otras funciones y escribir la solución
-    long int mitad = (n - 2) / 2;
-    Dijkstra<long int> djkN(dv, 0);
-    vector<long int> costesN;
+    int mitad = (n - 2) / 2;
+    Dijkstra<long long int> djkN(dv, 0);
+    vector<long long int> costesN;
     for (int i = 1; i < n - 1; ++i) {
         costesN.push_back(djkN.distancia(i));
     }
 
-    Dijkstra<long int> djkS(dv, n - 1);
-    vector<long int> costesS;
+    Dijkstra<long long int> djkS(dv, n - 1);
+    vector<long long int> costesS;
     for (int i = 1; i < n - 1; ++i) {
         costesS.push_back(djkS.distancia(i));
     }
@@ -100,9 +101,9 @@ bool resuelveCaso() {
     sort(costesN.begin(), costesN.end());
     sort(costesS.begin(), costesS.end());
 
-    long int menorCosteTotal = numeric_limits<long int>::max();
+    long long int menorCosteTotal = numeric_limits<long long int>::max();
     for (int i = 0; i <= mitad; ++i) {
-        long int costeTotal = costesN[i] + costesS[mitad - i] + djkN.distancia(n - 1);
+        long long int costeTotal = costesN[i] + costesS[mitad - i] + djkN.distancia(n - 1);
         menorCosteTotal = min(menorCosteTotal, costeTotal);
     }
 
