@@ -1,8 +1,8 @@
 
 /*@ <answer>
  *
- * Nombre y Apellidos: DA27 David Ferreras DÌaz
- * Nombre y Apellidos: DA58 Alejandro Zamorano MÈndez
+ * Nombre y Apellidos: DA27 David Ferreras D√≠az
+ * Nombre y Apellidos: DA58 Alejandro Zamorano M√©ndez
  *
  *@ </answer> */
 
@@ -15,14 +15,14 @@ using namespace std;
 
 /*@ <answer>
 
- Escribe aquÌ un comentario general sobre la soluciÛn, explicando cÛmo
- se resuelve el problema y cu·l es el coste de la soluciÛn, en funciÛn
- del tamaÒo del problema.
+ Escribe aqu√≠ un comentario general sobre la soluci√≥n, explicando c√≥mo
+ se resuelve el problema y cu√°l es el coste de la soluci√≥n, en funci√≥n
+ del tama√±o del problema.
 
- El problema consiste en mirar la distancia de cada vÈrtice para saber si se acercan m·s a la planta desalinizadora del norte 
+ El problema consiste en mirar la distancia de cada v√©rtice para saber si se acercan m√°s a la planta desalinizadora del norte
  o la planta desalinizadora del sur.
- Con DijsKstra, se podrÌa comprobrar desde (n-2)/2 la distancia que hay entre la planta norte y la planta sur, indicandole el origen y destino.
- Una vez que tienes las distancias minimas al norte o al sur, se puede saber el camino minimo y se descartarÌa los caminos que ya ha recorrido 
+ Con DijsKstra, se podr√≠a comprobrar desde (n-2)/2 la distancia que hay entre la planta norte y la planta sur, indicandole el origen y destino.
+ Una vez que tienes las distancias minimas al norte o al sur, se puede saber el camino minimo y se descartar√≠a los caminos que ya ha recorrido
  los camiones del norte o sur que elevan demasiado el coste para uno u otro.
 
 
@@ -32,7 +32,7 @@ using namespace std;
 
 
  // ================================================================
- // Escribe el cÛdigo completo de tu soluciÛn aquÌ debajo
+ // Escribe el c√≥digo completo de tu soluci√≥n aqu√≠ debajo
  // ================================================================
  //@ <answer>
 
@@ -73,7 +73,7 @@ bool resuelveCaso() {
     cin >> n >> m;
     if (!std::cin)
         return false;
-    
+
     DigrafoValorado<long int> dv(n);
     long int v, a, valor;
     for (int i = 0; i < m; ++i) {
@@ -82,16 +82,16 @@ bool resuelveCaso() {
         dv.ponArista({ a - 1, v - 1, valor });
     }
 
-    // resolver el caso posiblemente llamando a otras funciones y escribir la soluciÛn
+    // resolver el caso posiblemente llamando a otras funciones y escribir la soluci√≥n
     long int mitad = (n - 2) / 2;
     Dijkstra<long int> djkN(dv, 0);
-    Dijkstra<long int> djkN(dv, n);
+    Dijkstra<long int> djkS(dv, n - 1);
 
     return true;
 }
 
 //@ </answer>
-//  Lo que se escriba dejado de esta lÌnea ya no forma parte de la soluciÛn.
+//  Lo que se escriba dejado de esta l√≠nea ya no forma parte de la soluci√≥n.
 
 int main() {
     // ajustes para que cin extraiga directamente de un fichero
