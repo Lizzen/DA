@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <algorithm>
 using namespace std;
 
 #include "DigrafoValorado.h"  // propios o los de las estructuras de datos de clase
@@ -85,7 +86,27 @@ bool resuelveCaso() {
     // resolver el caso posiblemente llamando a otras funciones y escribir la solución
     long int mitad = (n - 2) / 2;
     Dijkstra<long int> djkN(dv, 0);
+    vector<long int> costesN;
+    for (int i = 1; i < n - 1; ++i) {
+        costesN.push_back(djkN.distancia(i));
+    }
+
     Dijkstra<long int> djkS(dv, n - 1);
+    vector<long int> costesS;
+    for (int i = 1; i < n - 1; ++i) {
+        costesS.push_back(djkS.distancia(i));
+    }
+
+    sort(costesN.begin(), costesN.end());
+    sort(costesS.begin(), costesS.end());
+
+    long int menorCosteTotal = numeric_limits<long int>::max();
+    for (int i = 0; i <= mitad; ++i) {
+        long int costeTotal = costesN[i] + costesS[mitad - i] + djkN.distancia(n - 1);
+        menorCosteTotal = min(menorCosteTotal, costeTotal);
+    }
+
+    cout << menorCosteTotal << "\n";
 
     return true;
 }
