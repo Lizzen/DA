@@ -1,8 +1,8 @@
 
 /*@ <answer>
  *
- * Nombre y Apellidos: DA27 David Ferreras Díaz
- * Nombre y Apellidos: DA58 Alejandro Zamorano Méndez
+ * Nombre y Apellidos: DA27 David Ferreras DÃ­az
+ * Nombre y Apellidos: DA58 Alejandro Zamorano MÃ©ndez
  *
  *@ </answer> */
 
@@ -11,114 +11,148 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <map>
 using namespace std;
 
 #include "Matriz.h"  // propios o los de las estructuras de datos de clase
 
 /*@ <answer>
 
- Escribe aquí un comentario general sobre la solución, explicando cómo
- se resuelve el problema y cuál es el coste de la solución, en función
- del tamaño del problema.
+ Escribe aquÃ­ un comentario general sobre la soluciÃ³n, explicando cÃ³mo
+ se resuelve el problema y cuÃ¡l es el coste de la soluciÃ³n, en funciÃ³n
+ del tamaÃ±o del problema.
 
  El problema consiste en ir comparando los elementos de las listas. Si dos canciones se repiten, se coge como palabra valida y se guarda su posicion.
  Si se repite una cancion en distinto orden en una lista respecto la otra, la anterior cancion o es valida.
 
- El algoritmo consiste en ir visitando los elementos de las dos listas. Si coincide, 
- se guardan en un vector(k) de enteros la suma de i(posicion en lista de mañana) + j (posicion en lista de tarde) y en un vector de string, la cancion.
- En cuanto coinciden, se llama a la funcion recursiva comparando el siguiente elemento de la lista de mañana, con el primer elemento de tarde.
- Si no, se sigue comparando el elemento del vector de mañana con el siguiente elemento de tarde hasta encontrar uno igual o que j = evening.size().
- 
- Al final se comparan los enteros del vector k. Si el indice es mayor que el anterior elemento,se descarta. 
+ El algoritmo consiste en rellenar la tabla, es decir, la matriz de programacion dinamica. Si coinciden los elementos de las listas, se pasa al elemento siguiente por arriba, 
+ si no se hace el maximo entre el elemento de arriba y el de la izquierda.
+ Una vez se tiene la matriz, se reconstruye la lista mas larga. Cuando los elementos son iguales, se hace un push back del elemento y se avanza diagonalmnente.
+ Si el siguiente elemento de i es mayor al siguiente elemento de j, se avanza i y si no se avanza j.
 
- El algoritmo en el peor caso posible será O(n^2) + O(n*m) ya que se recorre la lista de mañana y la lista de tarde enteras y la matriz solucion entera.
+ El coste del algoritmo es de O(n*m) donde n y m son las longitudes de sus respectivas listas de reproduccion.
+ Esto se debe a que la construccion de la matriz, en el peor de los casos se recorreran las dos listas y por lo tanto seran dos iteraciones y tendra un coste O(n*m).
+ En cambio, la reconstruccion de la lista de reproduccion tiene un coste proporcional a la longitud de la lista mas larga, que en el peor de los casos sera O(n + m).
 
- vector<string> morning = Lista de canciones turno de mañana
- vector<string> evening = Lista de canciones turno de tarde
- int i = posicion de vector morning
- int j = posicion de vector evening
- Matriz<int> cancion(i, j, false) = matriz que guarda las canciones validas
- string sol =  string con la lista solucion
+ vector<int> morning = Lista de canciones turno de maÃ±ana
+ vector<int> evening = Lista de canciones turno de tarde
+ Matriz<int> M(m + 1, n + 1, 0) = Matriz de programacion dinamica, 0 = infinito
+ map<string, int> mapa = mapa con las canciones y sus identificares
+ map<int, string> mapaInv = mapa invertido con las canciones y sus identificares
+ vector<string> ret =  vector con la lista solucion
 
  @ </answer> */
 
 
  // ================================================================
- // Escribe el código completo de tu solución aquí debajo
+ // Escribe el cÃ³digo completo de tu soluciÃ³n aquÃ­ debajo
  // ================================================================
  //@ <answer>
 
-void reconstruir(const vector<string> morning, const vector<string> evening, Matriz<int> const& cancion,
-    int i, int j, string& sol) {
-    if (i > j) return;
-    if (i == j) sol.append(morning[i]);
-    else if (morning[i] == evening[j]) {
-        sol.append(morning[i]);
-        reconstruir(morning, evening, cancion, i + 1, j - 1, sol);
-        sol.append(evening[j]);
-    }
-    else if (cancion[i][j] == cancion[i + 1][j])
-        reconstruir(morning, evening, cancion, i + 1, j, sol);
-    else
-        reconstruir(morning, evening, cancion, i, j - 1, sol);
-}
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+#include <algorithm>
 
-int lista_graduacion(const vector<string> morning, const vector<string> evening, int i, int j, Matriz<int>& cancion) {
-    int& res = cancion[i][j];
+using namespace std;
 
-    if (res == -1) {
-        if (morning[i] == evening[j]) {
-            if (i > j) {
-                cancion[i][j] = lista_graduacion(morning, evening, i + 1, 0, cancion);
-                res = 0;
-            }
-            else {
-                cancion[i][j] = min(lista_graduacion(morning, evening, i + 1, j, cancion), lista_graduacion(morning, evening, i, j + 1, cancion));
-                return cancion[i][j];
-            }
-        }
-        else {
-            cancion[i][j] = false;
-            return min(lista_graduacion(morning, evening, i + 1, j, cancion), lista_graduacion(morning, evening, i, j + 1, cancion));
-        }
-    }
+/*
+* const vector<int>& l1 = lista de reproduccion morning
+* const vector<int>& l2 = lista de reproduccion evening
+* map<int, string> mapa =  mapa invertido con las canciones y sus identificadores
+*/
+void construirListaReproduccion(const vector<int>& l1, const vector<int>& l2, map<int, string> mapa) {
+	int m = l1.size(), n = l2.size();
+
+	// Caso base dentro
+	// i==0 M[0][j]=0 lista1 no tiene canciones
+	// j==0 M[i][0]=0 lista2 no tiene canciones
+	Matriz<int> M(m + 1, n + 1, 0);
+
+	// Recursivo
+	for (int i = 1; i <= m; ++i) {
+		for (int j = 1; j <= n; ++j) {
+			if (l1[i - 1] == l2[j - 1]) {
+				M[i][j] = M[i - 1][j - 1] + 1;
+			}
+			else {
+				M[i][j] = max(M[i - 1][j], M[i][j - 1]);
+			}
+		}
+	}
+
+	// Reconstruir la lista mas larga
+	int i = m, j = n;
+	vector<string> ret;
+	while (i > 0 && j > 0) {
+		if (l1[i - 1] == l2[j - 1]) {
+			ret.push_back(mapa[l1[i - 1]]);
+			--i; --j;
+		}
+		else if (M[i - 1][j] > M[i][j - 1]) --i;
+		else --j;
+	}
+
+	// Se imprime la soluciÃ³n
+	for (int k = ret.size() - 1; k >= 0; --k) {
+		cout << ret[k] << " ";
+	}
+	cout << "\n";
 }
 
 bool resuelveCaso() {
-    string lista, song;
-    // leer los datos de la entrada
-    getline(cin, lista);
-    if (!std::cin)  // fin de la entrada
-        return false;
+	string lista1, lista2, song;
+	// leer los datos de la entrada
+	getline(cin, lista1);
+	if (!std::cin)  return false;
+	getline(cin, lista2);
 
-    stringstream ss(lista);
-    vector<string> morning;
-    vector<string> evening;
-    int i = 0;
-    while (ss >> song) {
-        morning.push_back(song);
-        ++i;
-    }
+	stringstream ss1(lista1);
+	stringstream ss2(lista2);
+	vector<int> morning;
+	vector<int> evening;
 
-    getline(cin, lista);
-    int j = 0;
-    while (ss >> song) {
-        evening.push_back(song);
-        ++j;
-    }
-    Matriz<int> cancion(i, j, false);
-    // resolver el caso posiblemente llamando a otras funciones
-   
-    // escribir la solución
-    lista_graduacion(morning, evening, 0, 0, cancion);
-    string sol;
-    reconstruir(morning, evening, cancion, 0, 0, sol);
-    cout << sol << "\n";
-    return true;
+	map<string, int> mapa;
+	map<int, string> mapaInv;
+	int cont = 1;
+
+	int tmp;
+	while (ss1 >> song) {
+		if (mapa.count(song) >= 1) { // Ya esta en el mapa
+			tmp = mapa[song];
+		}
+		else { // No esta en el mapa
+			mapa[song] = cont;
+			mapaInv[cont] = song;
+			tmp = cont;
+			cont++;
+		}
+
+		morning.push_back(tmp);
+	}
+
+	while (ss2 >> song) {
+		if (mapa.count(song) >= 1) { // Ya esta en el mapa
+			tmp = mapa[song];
+		}
+		else { // No esta en el mapa
+			mapa[song] = cont;
+			mapaInv[cont] = song;
+			tmp = cont;
+			cont++;
+		}
+
+		evening.push_back(tmp);
+	}
+
+
+	construirListaReproduccion(morning, evening, mapaInv);
+
+
+	return true;
 }
-
 //@ </answer>
-//  Lo que se escriba dejado de esta línea ya no forma parte de la solución.
+//  Lo que se escriba dejado de esta lÃ­nea ya no forma parte de la soluciÃ³n.
 
 int main() {
     // ajustes para que cin extraiga directamente de un fichero
